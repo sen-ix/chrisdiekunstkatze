@@ -11,20 +11,39 @@ body {
     font-family: Arial, sans-serif;
     color: #cfe9ff;
 
-    /* Animated gradient background */
     background: linear-gradient(120deg, #000814, #001d3d, #000814);
     background-size: 200% 200%;
-    animation: bgShift 20s ease infinite;
+
+    animation: 
+        bgShift 20s ease infinite,
+        cameraDrift 30s ease-in-out infinite,
+        flicker 6s infinite;
 }
 
-/* Background gradient animation */
+/* Background animation */
 @keyframes bgShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-/* ================= CRT SCANLINES ================= */
+/* Camera drift */
+@keyframes cameraDrift {
+    0%, 100% {
+        transform: scale(1) translate(0px, 0px);
+    }
+    50% {
+        transform: scale(1.02) translate(-10px, 5px);
+    }
+}
+
+/* Subtle flicker */
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.98; }
+}
+
+/* ================= SCANLINES ================= */
 body::before {
     content: "";
     position: fixed;
@@ -41,37 +60,67 @@ body::before {
     z-index: 10;
 }
 
-/* ================= AMBIENT GLOW ================= */
+/* ================= VIGNETTE + GLOW ================= */
 body::after {
     content: "";
     position: fixed;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, rgba(0,150,255,0.08), transparent 70%);
+    background:
+        radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.6)),
+        radial-gradient(circle at center, rgba(0,150,255,0.08), transparent 70%);
     pointer-events: none;
     z-index: 1;
 }
 
-/* ================= BACKGROUND WAVES ================= */
+/* ================= STARFIELD ================= */
+.stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.stars::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    opacity: 0.3;
+    box-shadow:
+        100px 200px white,
+        300px 400px white,
+        500px 100px white,
+        800px 600px white,
+        1200px 300px white;
+    animation: starDrift 60s linear infinite;
+}
+
+@keyframes starDrift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-1000px); }
+}
+
+/* ================= WAVES ================= */
 .background {
     position: fixed;
     width: 100%;
     height: 100%;
-    overflow: hidden;
 }
 
-/* Base wave */
 .wave {
     position: absolute;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 140, 255, 0.2), transparent 70%);
-    animation: waveMove 20s linear infinite;
     opacity: 0.6;
+
+    animation: 
+        waveMove 20s linear infinite,
+        waveColor 15s ease-in-out infinite;
+
     filter: blur(20px);
 }
 
-/* Layer variations */
 .wave2 {
     animation-duration: 30s;
     opacity: 0.4;
@@ -84,16 +133,18 @@ body::after {
     filter: blur(60px);
 }
 
-/* Wave animation */
 @keyframes waveMove {
-    0% {
-        transform: translate(-25%, -25%) rotate(0deg);
+    0% { transform: translate(-25%, -25%) rotate(0deg); }
+    50% { transform: translate(-30%, -20%) rotate(180deg); }
+    100% { transform: translate(-25%, -25%) rotate(360deg); }
+}
+
+@keyframes waveColor {
+    0%, 100% {
+        background: radial-gradient(circle, rgba(0,140,255,0.2), transparent 70%);
     }
     50% {
-        transform: translate(-30%, -20%) rotate(180deg);
-    }
-    100% {
-        transform: translate(-25%, -25%) rotate(360deg);
+        background: radial-gradient(circle, rgba(0,200,255,0.25), transparent 70%);
     }
 }
 
@@ -107,10 +158,9 @@ body::after {
     animation: floatUp linear infinite;
 }
 
-/* Floating animation */
 @keyframes floatUp {
     from {
-        transform: translateY(100vh) translateX(0);
+        transform: translateY(100vh);
         opacity: 0;
     }
     10% { opacity: 1; }
@@ -126,36 +176,58 @@ body::after {
     top: 40%;
     left: 10%;
     transform: translateY(-50%);
-
-    /* Glass effect */
-    backdrop-filter: blur(10px);
-    background: rgba(0, 20, 50, 0.2);
     padding: 20px;
     border-radius: 10px;
+
+    backdrop-filter: blur(10px);
+    background: rgba(0, 20, 50, 0.2);
+
+    transition: transform 0.5s ease;
 }
 
-/* Logo */
+/* 3D hover tilt */
+.menu:hover {
+    transform: translateY(-50%) perspective(800px) rotateY(5deg);
+}
+
+/* Sweep shine */
+.menu::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.15),
+        transparent
+    );
+    animation: sweep 6s infinite;
+}
+
+@keyframes sweep {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ================= LOGO ================= */
 .logo {
     font-size: 32px;
     margin-bottom: 20px;
     letter-spacing: 2px;
     color: #7cc7ff;
 
-    /* Glow animation */
     animation: pulseGlow 4s ease-in-out infinite;
 }
 
-/* Glow pulse */
 @keyframes pulseGlow {
-    0%, 100% {
-        text-shadow: 0 0 5px #00aaff;
-    }
-    50% {
-        text-shadow: 0 0 20px #00ccff;
-    }
+    0%, 100% { text-shadow: 0 0 5px #00aaff; }
+    50% { text-shadow: 0 0 20px #00ccff; }
 }
 
-/* Menu list */
+/* ================= MENU ITEMS ================= */
 .menu ul {
     list-style: none;
 }
@@ -167,14 +239,28 @@ body::after {
     transition: all 0.3s ease;
 }
 
-/* Hover effect */
+/* Cursor dot */
+.menu li::before {
+    content: "●";
+    margin-right: 10px;
+    opacity: 0;
+    color: #00ccff;
+    transition: opacity 0.3s;
+}
+
+.menu li:hover::before,
+.menu li.active::before {
+    opacity: 1;
+}
+
+/* Hover */
 .menu li:hover {
     color: #ffffff;
     text-shadow: 0 0 10px #00aaff;
     transform: translateX(10px);
 }
 
-/* Active selection */
+/* Active */
 .menu li.active {
     color: #ffffff;
     text-shadow: 0 0 15px #00ccff;
